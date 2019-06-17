@@ -1,7 +1,7 @@
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
-const multerS3 = require("multer-s3");
+const multerS3 = require("multer-s3-transform");
 const aws = require("aws-sdk");
 const sharp = require("sharp");
 
@@ -15,7 +15,7 @@ const storageTypes = {
             if (err) {
                cb(null, file.originalname);
             }
-            file.key = `${hash.toString("hex")}-${file.originalname}`;
+            file.key = `${hash.toString("hex")}.jpg`;
             cb(null, file.key);
          });
       }
@@ -25,15 +25,30 @@ const storageTypes = {
       bucket: process.env.AWS_BUCKET,
       contentType: multerS3.AUTO_CONTENT_TYPE,
       acl: "public-read",
-      key: (req, file, cb) => {
-         crypto.randomBytes(16, async (err, hash) => {
-            if (err) {
-               cb(null, file.originalname);
+      shouldTransform: function(req, file, cb) {
+         cb(null, /^image/i.test(file.mimetype));
+      },
+      transforms: [
+         {
+            key: (req, file, cb) => {
+               crypto.randomBytes(16, async (err, hash) => {
+                  if (err) {
+                     cb(null, file.originalname);
+                  }
+                  const fileName = `${hash.toString("hex")}.jpg`;
+                  cb(null, fileName);
+               });
+            },
+            transform: function(req, file, cb) {
+               cb(
+                  null,
+                  sharp()
+                     .resize(600)
+                     .toFormat("jpeg")
+               );
             }
-            const fileName = `${hash.toString("hex")}-${file.originalname}`;
-            cb(null, fileName);
-         });
-      }
+         }
+      ]
    })
 };
 module.exports = {
