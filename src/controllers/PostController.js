@@ -8,9 +8,6 @@ module.exports = {
    },
 
    async store(req, res) {
-      console.log("====================================");
-      console.log(req.file);
-      console.log("====================================");
       const { author, place, description, hashtags } = req.body;
       const { originalname: image } = req.file;
       const { key, location: url = "" } = req.file.transforms[0];
