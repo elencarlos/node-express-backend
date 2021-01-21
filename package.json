@@ -18,7 +18,7 @@
       "multer-s3": "^2.9.0",
       "multer-s3-transform": "^2.3.2",
       "sharp": "^0.22.1",
-      "socket.io": "^2.2.0"
+      "socket.io": "^2.4.0"
    },
    "devDependencies": {
       "nodemon": "^1.19.1"
